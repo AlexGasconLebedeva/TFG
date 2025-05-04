@@ -80,7 +80,7 @@
 </div>
 
 <!-- Ventana del chat -->
-<div id="chat-window" class="chat-window hidden">
+<div id="chat-window" class="chat-window hidden" autocomplete="off">
   <div class="chat-header">
     <span>Chat con Admin</span>
     <i class="ri-close-line" id="close-chat"></i>
@@ -136,6 +136,56 @@
     });
   </script>
   <script type="module" src="assets/js/scripttoggle.js"></script>
+  <script type="module">
+    import {
+      getDatabase,
+      ref,
+      push,
+      onChildAdded
+    } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+  
+    import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+  
+    const db = getDatabase();
+    const chatRef = ref(db, 'adminChats');
+    const chatAuth = getAuth();
+  
+    const toggleBtn = document.getElementById('chat-toggle');
+    const chatWindow = document.getElementById('chat-window');
+    const closeBtn = document.getElementById('close-chat');
+  
+    toggleBtn.addEventListener('click', () => chatWindow.classList.toggle('hidden'));
+    closeBtn.addEventListener('click', () => chatWindow.classList.add('hidden'));
+  
+    const form = document.getElementById('chat-form');
+    const input = document.getElementById('chat-input');
+    const messages = document.getElementById('chat-messages');
+  
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const user = chatAuth.currentUser;
+      if (!user) return;
+  
+      const message = {
+        uid: user.uid,
+        email: user.email,
+        text: input.value,
+        timestamp: Date.now()
+      };
+  
+      await push(chatRef, message);
+      input.value = '';
+    });
+  
+    onChildAdded(chatRef, (data) => {
+      const msg = data.val();
+      const msgEl = document.createElement('div');
+      msgEl.innerHTML = `<strong>${msg.email}:</strong> ${msg.text}`;
+      messages.appendChild(msgEl);
+      messages.scrollTop = messages.scrollHeight;
+    });
+  </script>
+  
   
 </body>
 </html>
