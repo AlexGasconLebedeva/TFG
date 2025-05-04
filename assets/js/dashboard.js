@@ -18,12 +18,12 @@ document.addEventListener("DOMContentLoaded", () => {
         userNameElement.textContent = "Usuario";
       }
     } else {
-      // Si no hay usuario, redirigir al login
+      // Si no hay usuario, redirigir al Login
       window.location.href = "login.html";
     }
   });
 
-  // Logout
+  // Logout 
   document.getElementById("logout-button").addEventListener("click", () => {
     signOut(auth)
       .then(() => {
