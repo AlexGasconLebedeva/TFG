@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Todos los Vídeos</title>
+  <link rel="stylesheet" href="assets/css/stylesvideo.css">
+
+</head>
+<body>
+
+  <video autoplay muted loop playsinline id="bg-video">
+    <source src="assets/video/vecteezy_ceiling-flames-4k-motion-background-loop_1615100.mp4" type="video/mp4" />
+    Tu navegador no soporta vídeo HTML5.
+  </video>
+
+  <div class="overlay"></div>
+
+  <div class="container">
+    <h1>Todos los vídeos</h1>
+    <div class="video-grid">
+      <!-- Video 1 -->
+      <div class="video-card">
+        <img src="assets/img/chachasalvoimagen.jpg" alt="Cha Cha Cha">
+        <div class="info">
+          <h3>Cha Cha Cha Básico</h3>
+          <p>Aprende los pasos básicos del Cha Cha Cha con este video guiado.</p>
+          <button onclick="location.href='assets/video/chachasalvo.mp4'">Ver vídeo</button>
+        </div>
+      </div>
+
+      <!-- Video 2 -->
+      <div class="video-card">
+        <img src="assets/img/thumbnail2.jpg" alt="Samba">
+        <div class="info">
+          <h3>Samba Intermedio</h3>
+          <p>Domina las técnicas intermedias de Samba para brillar en la pista.</p>
+          <button onclick="location.href='videos/video2.html'">Ver vídeo</button>
+        </div>
+      </div>
+
+      <!-- Video 3 -->
+      <div class="video-card">
+        <img src="assets/img/thumbnail3.jpg" alt="Jive">
+        <div class="info">
+          <h3>Jive Avanzado</h3>
+          <p>Para bailarines experimentados: velocidad, ritmo y energía.</p>
+          <button onclick="location.href='videos/video3.html'">Ver vídeo</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

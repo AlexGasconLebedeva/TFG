@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+   <!--=============== REMIXICONS ===============-->
+   <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+
+   <!--=============== CSS ===============-->
+   <link rel="stylesheet" href="assets/css/styles.css">
+
+   <title>Register</title>
+</head>
+<body>
+
+   <div class="register">
+      <img src="assets/img/royal-albert-hall-e1638556433427.png" alt="register image" class="register__img">
+
+      <form action="" class="register__form register__form" id="register-form" autocomplete="off">
+         <h1 class="register__title">Register</h1>
+
+         <div class="register__content">
+            <!-- Nickname -->
+            <div class="register__box">
+               <i class="ri-user-6-line login__icon"></i>
+               <div class="register__box-input">
+                  <input type="text" required class="register__input" id="register-nickname" placeholder=" "/>
+                  <label for="register-nickname" class="register__label">Nickname</label>
+               </div>
+            </div>
+
+            <!-- Email -->
+            <div class="register__box">
+               <i class="ri-user-3-line register__icon"></i>
+               <div class="register__box-input">
+                  <input type="email" required class="register__input" id="register-email" placeholder=" " />
+                  <label for="register-email" class="register__label">Email</label>
+               </div>
+            </div>
+
+            <!-- Password -->
+            <div class="register__box">
+               <i class="ri-lock-2-line register__icon"></i>
+               <div class="register__box-input">
+                  <input type="password" required class="register__input" id="register-pass" placeholder=" " />
+                  <label for="register-pass" class="register__label">Password</label>
+                  <i class="ri-eye-off-line register__eye" id="register-eye"></i>
+               </div>
+            </div>
+         </div>
+
+         <button type="submit" class="register__button">Register</button>
+
+         <p class="register__register">
+            Already registered? <a href="login.html">Login</a>
+         </p>
+      </form>
+   </div>
+
+   <!--=============== Firebase JS ===============-->
+   <script type="module">
+      import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js';
+      import { getAuth, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js';
+      import { getFirestore, doc, setDoc } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js';
+
+      
+
+      const firebaseConfig = {
+         apiKey: "AIzaSyB81PYScRvR_rLofBAKeBe6mEldiyp-Qzo",
+         authDomain: "tfg-alexgascon.firebaseapp.com",
+         projectId: "tfg-alexgascon",
+         storageBucket: "tfg-alexgascon.firebasestorage.app",
+         messagingSenderId: "388739128309",
+         appId: "1:388739128309:web:4e422d9a5f3d80f1eddebc",
+         measurementId: "G-YK5D53M8HP"
+      };
+
+      // Inicialización de Firebase
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      // Obtener elementos del formulario
+      const registerForm = document.getElementById('register-form');
+      const registerNickname = document.getElementById('register-nickname');
+      const registerEmail = document.getElementById('register-email');
+      const registerPass = document.getElementById('register-pass');
+
+      // Escuchar el evento de envío del formulario
+      registerForm.addEventListener('submit', async (e) => {
+         e.preventDefault();
+         
+         // Verificar que los valores no sean null
+         if (registerNickname && registerEmail && registerPass) {
+            const nickname = registerNickname.value;
+            const email = registerEmail.value;
+            const password = registerPass.value;
+
+            try {
+               // Crear un nuevo usuario en Firebase
+               const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+               const user = userCredential.user;
+
+               // Guardar el nickname en Firestore
+               await setDoc(doc(db, 'users', user.uid), { nickname });
+
+               // Redirigir al login
+               window.location.href = 'dashboard.html';
+            } catch (error) {
+               console.error('Error registrando usuario: ', error);
+            }
+         }
+      });
+   </script>
+
+<script>
+   const showPassword = document.getElementById('register-eye');
+   const passwordInput = document.getElementById('register-pass');
+ 
+   showPassword.addEventListener('click', () => {
+     const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+     passwordInput.setAttribute('type', type);
+     
+     // Alternar el icono del ojo
+     showPassword.classList.toggle('ri-eye-line');
+     showPassword.classList.toggle('ri-eye-off-line');
+   });
+ </script>
+ 
+
+</body>
+</html>
