@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Todos los Vídeos</title>
   <link rel="stylesheet" href="assets/css/stylesvideo.css">
-
 </head>
 <body>
 
+  <!-- Video de fondo -->
   <video autoplay muted loop playsinline id="bg-video">
     <source src="assets/video/vecteezy_ceiling-flames-4k-motion-background-loop_1615100.mp4" type="video/mp4" />
     Tu navegador no soporta vídeo HTML5.
@@ -18,37 +18,160 @@
 
   <div class="container">
     <h1>Todos los vídeos</h1>
-    <div class="video-grid">
-      <!-- Video 1 -->
-      <div class="video-card">
-        <img src="assets/img/chachasalvoimagen.jpg" alt="Cha Cha Cha">
-        <div class="info">
-          <h3>Cha Cha Cha Básico</h3>
-          <p>Aprende los pasos básicos del Cha Cha Cha con este video guiado.</p>
-          <button onclick="location.href='assets/video/chachasalvo.mp4'">Ver vídeo</button>
-        </div>
-      </div>
 
-      <!-- Video 2 -->
-      <div class="video-card">
-        <img src="assets/img/thumbnail2.jpg" alt="Samba">
-        <div class="info">
-          <h3>Samba Intermedio</h3>
-          <p>Domina las técnicas intermedias de Samba para brillar en la pista.</p>
-          <button onclick="location.href='videos/video2.html'">Ver vídeo</button>
-        </div>
-      </div>
+    <button class="back-button" onclick="window.location.href='dashboard.html'">
+      ← Volver al Dashboard
+    </button>
 
-      <!-- Video 3 -->
-      <div class="video-card">
-        <img src="assets/img/thumbnail3.jpg" alt="Jive">
-        <div class="info">
-          <h3>Jive Avanzado</h3>
-          <p>Para bailarines experimentados: velocidad, ritmo y energía.</p>
-          <button onclick="location.href='videos/video3.html'">Ver vídeo</button>
-        </div>
-      </div>
+    <div class="upload-container">
+      <h3>Subir nuevo vídeo</h3>
+      <input type="file" id="video-upload" accept="video/*" />
+      <input type="text" id="video-title" placeholder="Título del vídeo" />
+      <button id="upload-btn">Subir</button>
+      <p id="upload-status"></p>
+    </div>
+
+    <div class="search-bar">
+      <input type="text" id="search-input" placeholder="Buscar vídeos por título..." />
+    </div>
+
+    <div class="video-grid" id="video-grid">
+      <!-- Los videos se añadirán desde Firestore -->
     </div>
   </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+    // Inicialización de Firebase y sus servicios
+    const firebaseConfig = {
+      apiKey: "AIzaSyB81PYScRvR_rLofBAKeBe6mEldiyp-Qzo",
+      authDomain: "tfg-alexgascon.firebaseapp.com",
+      projectId: "tfg-alexgascon",
+      storageBucket: "tfg-alexgascon.firebasestorage.app",
+      messagingSenderId: "388739128309",  
+      appId: "1:388739128309:web:4e422d9a5f3d80f1eddebc"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+    const auth = getAuth();
+
+    // Verificar estado de autenticación
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        console.log("✅ Usuario autenticado:", user.email);
+        loadVideos();
+      } else {
+        console.warn("Usuario no autenticado. Redirigiendo al login...");
+        window.location.href = "login.html";
+      }
+    });
+
+    async function loadVideos() {
+      const videoGrid = document.getElementById("video-grid");
+      videoGrid.innerHTML = "";
+
+      try {
+        const snapshot = await getDocs(collection(db, "videos"));
+        if (snapshot.empty) {
+          videoGrid.innerHTML = "<p>No hay videos disponibles.</p>";
+          return;
+        }
+
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          const card = document.createElement("div");
+          card.className = "video-card";
+          card.innerHTML = `
+            <video src="${data.url}" controls width="250"></video>
+            <h3>${data.title}</h3>
+            <button onclick="deleteVideo('${docSnap.id}', '${data.storagePath}')">Eliminar</button>
+          `;
+          videoGrid.appendChild(card);
+        });
+      } catch (error) {
+        console.error("Error al cargar los videos:", error);
+      }
+    }
+
+    document.getElementById("upload-btn").addEventListener("click", uploadVideo);
+
+    async function uploadVideo() {
+      const fileInput = document.getElementById("video-upload");
+      const titleInput = document.getElementById("video-title");
+      const statusText = document.getElementById("upload-status");
+      const file = fileInput.files[0];
+      const title = titleInput.value;
+
+      if (!file || !title) {
+        statusText.textContent = "Por favor selecciona un video y un título.";
+        return;
+      }
+
+      const user = auth.currentUser;
+      if (!user) {
+        statusText.textContent = "Debes iniciar sesión para subir videos.";
+        return;
+      }
+
+      const fileRef = ref(storage, `videos/${user.uid}/${Date.now()}_${file.name}`);
+
+      try {
+        statusText.textContent = "Subiendo video...";
+        await uploadBytes(fileRef, file);
+        const downloadURL = await getDownloadURL(fileRef);
+
+        await addDoc(collection(db, "videos"), {
+          userId: user.uid,
+          title: title,
+          url: downloadURL,
+          storagePath: fileRef.fullPath,
+          createdAt: new Date()
+        });
+
+        statusText.textContent = "¡Video subido con éxito!";
+        fileInput.value = "";
+        titleInput.value = "";
+        loadVideos();
+      } catch (error) {
+        console.error("Error al subir video:", error);
+        statusText.textContent = "Error al subir el video.";
+      }
+    }
+
+    async function deleteVideo(videoId, storagePath) {
+      const user = auth.currentUser;
+      if (!user) {
+        alert("Debes estar autenticado para eliminar el video.");
+        return;
+      }
+
+      try {
+        const fileRef = ref(storage, storagePath);
+        await deleteObject(fileRef).catch((error) => {
+          if (error.code !== 'storage/object-not-found') {
+            throw error;
+          }
+        });
+
+        await deleteDoc(doc(db, "videos", videoId));
+        alert("Vídeo eliminado correctamente.");
+        loadVideos();
+      } catch (error) {
+        console.error("Error eliminando el video:", error);
+        alert("Error eliminando el video: " + error.message);
+      }
+    }
+    window.deleteVideo = deleteVideo;
+    window.uploadVideo = uploadVideo;
+  </script>
+  <script type="module">
+    
+  </script>
 </body>
 </html>

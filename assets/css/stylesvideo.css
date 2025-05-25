@@ -12,17 +12,38 @@
       background-color: #000;
       text-transform: uppercase;
       font-weight: 800;
+      background: transparent;
 
     }
 
-    #bg-video {
+    .back-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 0.6rem 1.2rem;
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #111;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  z-index: 10;
+}
+
+.back-button:hover {
+  background-color: #e63946;
+  transform: scale(1.05);
+}
+
+ #bg-video {
       position: fixed;
-      right: 0;
-      bottom: 0;
-      min-width: 100%;
-      min-height: 100%;
-      z-index: -1;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
       object-fit: cover;
+      z-index: -2;
     }
 
     .overlay {
@@ -31,15 +52,36 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0, 0, 0, 0.5);
       z-index: -1;
     }
 
     .container {
-      padding: 4rem 2rem;
+      position: relative;
+      z-index: 1;
+      padding: 2rem;
+      color: white;
       text-align: center;
     }
 
+    .video-card {
+  background: rgba(255,255,255,0.1);
+  padding: 1rem;
+  border-radius: 10px;
+  margin: 1rem;
+  text-align: center;
+}
+.video-card .info button {
+  margin: 0.5rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+.video-thumbnail {
+  width: 100%;
+  max-width: 300px;
+  border-radius: 10px;
+}
+      
     .container h1 {
       font-size: 2.5rem;
       margin-bottom: 2rem;
@@ -51,12 +93,6 @@
       gap: 2rem;
     }
 
-    .video-card {
-      background: #111;
-      border-radius: 1rem;
-      overflow: hidden;
-      transition: transform 0.3s ease;
-    }
 
     .video-card:hover {
       transform: scale(1.03);
@@ -95,3 +131,99 @@
       background: #fff;
       color: #000;
     }
+
+    .search-bar {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+#search-input {
+  width: 50%;
+  padding: 0.8rem 1rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+
+.rating span {
+  font-size: 1.8rem;
+  color: #ccc;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+.rating span:hover,
+.rating span:hover ~ span {
+  color: #ffcc00;
+}
+.rating span.active {
+  color: #ffcc00;
+}
+  .chat-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #d43f3a;
+    color: white;
+    padding: 15px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 24px;
+    z-index: 1;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  .chat-window {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 300px;
+    max-height: 400px;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    z-index: 9999;
+  }
+  
+  .chat-window.hidden {
+    display: none;
+  }
+  
+  .chat-header {
+    background: #d43f3a;
+    color: white;
+    padding: 10px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .chat-messages {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+  }
+  
+  #chat-form {
+    display: flex;
+    border-top: 1px solid #ccc;
+  }
+  
+  #chat-input {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    outline: none;
+  }
+  
+  #chat-form button {
+    background: #d43f3a;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+  }
